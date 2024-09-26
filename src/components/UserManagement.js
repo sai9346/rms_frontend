@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import API from '../services/api';
-import { FaTrash, FaEdit } from 'react-icons/fa';
-import './UserManagement.css'; // Ensure you import the CSS file
+import { FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
+import './UserManagement.css';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -12,18 +12,20 @@ const UserManagement = () => {
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedPermission, setSelectedPermission] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Fetch users from the API
   const fetchUsers = async () => {
-    setLoading(true); // Show loading state
+    setLoading(true);
     try {
       const response = await API.get('/users');
       setUsers(response.data);
-      setError(''); // Clear any previous error on success
+      setError('');
     } catch (error) {
       setError('Failed to fetch users');
     }
-    setLoading(false); // Hide loading state
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -59,42 +61,85 @@ const UserManagement = () => {
     setSelectedPermission(newPermission);
   };
 
-  // Handle saving changes to user roles and permissions
   const handleSaveChanges = async (userId) => {
-    const updatedRoles = [{
-      role: selectedRole,
-      accessLevel: selectedPermission,
-    }];
-
+    const updatedRoles = [{ role: selectedRole, accessLevel: selectedPermission }];
     try {
       await API.put(`/users/${userId}`, { roles: updatedRoles });
-      fetchUsers(); // Fetch updated users after saving changes
-      setEditingUser(null); // Exit editing mode
+      fetchUsers();
+      setEditingUser(null);
+      setSuccessMessage('User updated successfully!');
     } catch (error) {
       setError('Failed to update user');
     }
   };
 
+  const handleAddUserClick = () => {
+    setShowAddUserForm(!showAddUserForm);
+  };
+
+  const handleCloseAddUserForm = () => {
+    setShowAddUserForm(false);
+    setNewUser({ name: '', email: '', role: '' });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
+  };
+
+  // This function is responsible for adding a new user
+  const handleAddUserSubmit = async (e) => {
+    e.preventDefault();
+    if (!newUser.name || !newUser.email || !newUser.role) {
+      setError('All fields are required');
+      return;
+    }
+    setLoading(true);
+    try {
+      await API.post('/users', {
+        name: newUser.name,
+        email: newUser.email,
+        roles: [{ role: newUser.role, accessLevel: 'View-only' }],
+      });
+      setSuccessMessage('User details successfully saved!');
+      fetchUsers();
+      setNewUser({ name: '', email: '', role: '' });
+      setShowAddUserForm(false);
+    } catch (error) {
+      console.error('Error adding user:', error);
+      setError('Failed to add user');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   return (
     <div className="user-management-container">
       <h2>User Management</h2>
-      
-      {error && <p className="error-message">{error}</p>} {/* Display error messages */}
-      
-      <div className="search-filter">
-        <input
-          type="text"
-          placeholder="Search users"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <select onChange={(e) => setRoleFilter(e.target.value)} className="role-filter">
-          <option value="">All Roles</option>
-          <option value="Job Post Editor">Job Post Editor</option>
-          <option value="Candidate Reviewer">Candidate Reviewer</option>
-          <option value="Interview Scheduler">Interview Scheduler</option>
-        </select>
+
+      {error && <p className="error-message">{error}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
+
+      <div className="search-filter-container">
+        <div className="search-filter">
+          <input
+            type="text"
+            placeholder="Search users"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <select onChange={(e) => setRoleFilter(e.target.value)} className="role-filter">
+            <option value="">All Roles</option>
+            <option value="Job Post Editor">Job Post Editor</option>
+            <option value="Candidate Reviewer">Candidate Reviewer</option>
+            <option value="Interview Scheduler">Interview Scheduler</option>
+          </select>
+          <button onClick={handleAddUserClick} className="add-user-button">
+            Add User
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -164,6 +209,54 @@ const UserManagement = () => {
             )}
           </tbody>
         </table>
+      )}
+
+      {showAddUserForm && (
+        <div className="add-user-popup">
+          <div className="add-user-header">
+            <h3>Add Team Member</h3>
+            <button onClick={handleCloseAddUserForm} className="close-button">
+              <FaTimes />
+            </button>
+          </div>
+          <form onSubmit={handleAddUserSubmit} className="add-user-form">
+            <label>
+              Name:
+              <input
+                type="text"
+                name="name"
+                value={newUser.name}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+            <label>
+              Email:
+              <input
+                type="email"
+                name="email"
+                value={newUser.email}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+            <label>
+              Role:
+              <select
+                name="role"
+                value={newUser.role}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="Job Post Editor">Job Post Editor</option>
+                <option value="Candidate Reviewer">Candidate Reviewer</option>
+                <option value="Interview Scheduler">Interview Scheduler</option>
+              </select>
+            </label>
+            <button type="submit" className="submit-button">Add User</button>
+          </form>
+        </div>
       )}
     </div>
   );
