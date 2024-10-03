@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import API from '../services/api';
+import API from '../services/api';  // Import API service
 import { FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 import './UserManagement.css';
 
@@ -87,7 +87,6 @@ const UserManagement = () => {
     setNewUser({ ...newUser, [name]: value });
   };
 
-  // This function is responsible for adding a new user
   const handleAddUserSubmit = async (e) => {
     e.preventDefault();
     if (!newUser.name || !newUser.email || !newUser.role) {
@@ -106,13 +105,11 @@ const UserManagement = () => {
       setNewUser({ name: '', email: '', role: '' });
       setShowAddUserForm(false);
     } catch (error) {
-      console.error('Error adding user:', error);
       setError('Failed to add user');
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="user-management-container">
@@ -122,24 +119,22 @@ const UserManagement = () => {
       {successMessage && <p className="success-message">{successMessage}</p>}
 
       <div className="search-filter-container">
-        <div className="search-filter">
-          <input
-            type="text"
-            placeholder="Search users"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <select onChange={(e) => setRoleFilter(e.target.value)} className="role-filter">
-            <option value="">All Roles</option>
-            <option value="Job Post Editor">Job Post Editor</option>
-            <option value="Candidate Reviewer">Candidate Reviewer</option>
-            <option value="Interview Scheduler">Interview Scheduler</option>
-          </select>
-          <button onClick={handleAddUserClick} className="add-user-button">
-            Add User
-          </button>
-        </div>
+        <input
+          type="text"
+          placeholder="Search users"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        <select onChange={(e) => setRoleFilter(e.target.value)} className="role-filter">
+          <option value="">All Roles</option>
+          <option value="Job Post Editor">Job Post Editor</option>
+          <option value="Candidate Reviewer">Candidate Reviewer</option>
+          <option value="Interview Scheduler">Interview Scheduler</option>
+        </select>
+        <button onClick={handleAddUserClick} className="add-user-button">
+          Add User
+        </button>
       </div>
 
       {loading ? (
@@ -151,6 +146,7 @@ const UserManagement = () => {
               <th>Name</th>
               <th>Email</th>
               <th>Roles</th>
+              <th>Permissions</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -160,42 +156,56 @@ const UserManagement = () => {
                 <tr key={user._id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.roles.map((r) => r.role).join(', ')}</td>
                   <td>
-                    <button onClick={() => handleEditClick(user)} className="edit-button">
-                      <FaEdit />
-                    </button>
-                    <button onClick={() => handleDelete(user._id)} className="delete-button">
-                      <FaTrash />
-                    </button>
-                    {editingUser === user._id && (
-                      <div className="edit-dropdown">
-                        <select
-                          onChange={(e) => handleRoleChange(e.target.value)}
-                          value={selectedRole}
-                          className="role-dropdown"
-                        >
-                          <option value="Job Post Editor">Job Post Editor</option>
-                          <option value="Candidate Reviewer">Candidate Reviewer</option>
-                          <option value="Interview Scheduler">Interview Scheduler</option>
-                        </select>
-
-                        <select
-                          onChange={(e) => handlePermissionChange(e.target.value)}
-                          value={selectedPermission}
-                          className="permission-dropdown"
-                        >
-                          <option value="">Select Permission</option>
-                          <option value="View-only">View-only</option>
-                          <option value="Edit">Edit</option>
-                          <option value="Full Control">Full Control</option>
-                        </select>
-
+                    {editingUser === user._id ? (
+                      <select
+                        className="role-dropdown"
+                        value={selectedRole}
+                        onChange={(e) => handleRoleChange(e.target.value)}
+                      >
+                        <option value="Job Post Editor">Job Post Editor</option>
+                        <option value="Candidate Reviewer">Candidate Reviewer</option>
+                        <option value="Interview Scheduler">Interview Scheduler</option>
+                      </select>
+                    ) : (
+                      user.roles.map((role) => role.role).join(', ')
+                    )}
+                  </td>
+                  <td>
+                    {editingUser === user._id ? (
+                      <select
+                        className="permission-dropdown"
+                        value={selectedPermission}
+                        onChange={(e) => handlePermissionChange(e.target.value)}
+                      >
+                        <option value="View-only">View-only</option>
+                        <option value="Editor">Editor</option>
+                      </select>
+                    ) : (
+                      user.roles.map((role) => role.accessLevel).join(', ')
+                    )}
+                  </td>
+                  <td>
+                    {editingUser === user._id ? (
+                      <button
+                        className="save-button"
+                        onClick={() => handleSaveChanges(user._id)}
+                      >
+                        Save
+                      </button>
+                    ) : (
+                      <div>
                         <button
-                          onClick={() => handleSaveChanges(user._id)}
-                          className="save-button"
+                          className="edit-button"
+                          onClick={() => handleEditClick(user)}
                         >
-                          Save
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(user._id)}
+                        >
+                          <FaTrash />
                         </button>
                       </div>
                     )}
@@ -204,7 +214,9 @@ const UserManagement = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="no-users-message">No users found matching the criteria.</td>
+                <td colSpan="5" className="no-users-message">
+                  No users found
+                </td>
               </tr>
             )}
           </tbody>
@@ -214,12 +226,12 @@ const UserManagement = () => {
       {showAddUserForm && (
         <div className="add-user-popup">
           <div className="add-user-header">
-            <h3>Add Team Member</h3>
-            <button onClick={handleCloseAddUserForm} className="close-button">
+            <h3>Add User</h3>
+            <button className="close-button" onClick={handleCloseAddUserForm}>
               <FaTimes />
             </button>
           </div>
-          <form onSubmit={handleAddUserSubmit} className="add-user-form">
+          <form className="add-user-form" onSubmit={handleAddUserSubmit}>
             <label>
               Name:
               <input
