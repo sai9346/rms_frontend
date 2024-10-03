@@ -178,6 +178,7 @@ const UserManagement = () => {
                         value={selectedPermission}
                         onChange={(e) => handlePermissionChange(e.target.value)}
                       >
+                        <option value="Full-control">Full-Control</option>
                         <option value="View-only">View-only</option>
                         <option value="Editor">Editor</option>
                       </select>
