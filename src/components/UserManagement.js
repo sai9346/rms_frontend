@@ -15,6 +15,8 @@ const UserManagement = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
   const [successMessage, setSuccessMessage] = useState('');
+  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -41,6 +43,9 @@ const UserManagement = () => {
   const handleDelete = async (userId) => {
     try {
       await API.delete(`/users/${userId}`);
+      setDeleteConfirmationVisible(false);
+      setSuccessMessage('User deleted successfully!');
+      setTimeout(() => setSuccessMessage(''), 5000); // Clear message after 5 seconds
       fetchUsers();
     } catch (error) {
       setError('Failed to delete user');
@@ -68,6 +73,7 @@ const UserManagement = () => {
       fetchUsers();
       setEditingUser(null);
       setSuccessMessage('User updated successfully!');
+      setTimeout(() => setSuccessMessage(''), 5000); // Clear message after 5 seconds
     } catch (error) {
       setError('Failed to update user');
     }
@@ -101,6 +107,7 @@ const UserManagement = () => {
         roles: [{ role: newUser.role, accessLevel: 'View-only' }],
       });
       setSuccessMessage('User details successfully saved!');
+      setTimeout(() => setSuccessMessage(''), 5000); // Clear message after 5 seconds
       fetchUsers();
       setNewUser({ name: '', email: '', role: '' });
       setShowAddUserForm(false);
@@ -109,6 +116,16 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const confirmDeleteUser = (userId) => {
+    setUserToDelete(userId);
+    setDeleteConfirmationVisible(true);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmationVisible(false);
+    setUserToDelete(null);
   };
 
   return (
@@ -204,7 +221,7 @@ const UserManagement = () => {
                         </button>
                         <button
                           className="delete-button"
-                          onClick={() => handleDelete(user._id)}
+                          onClick={() => confirmDeleteUser(user._id)} // Updated to use confirm function
                         >
                           <FaTrash />
                         </button>
@@ -233,42 +250,45 @@ const UserManagement = () => {
             </button>
           </div>
           <form className="add-user-form" onSubmit={handleAddUserSubmit}>
-            <label>
-              Name:
-              <input
-                type="text"
-                name="name"
-                value={newUser.name}
-                onChange={handleInputChange}
-                required
-              />
-            </label>
-            <label>
-              Email:
-              <input
-                type="email"
-                name="email"
-                value={newUser.email}
-                onChange={handleInputChange}
-                required
-              />
-            </label>
-            <label>
-              Role:
-              <select
-                name="role"
-                value={newUser.role}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="Job Post Editor">Job Post Editor</option>
-                <option value="Candidate Reviewer">Candidate Reviewer</option>
-                <option value="Interview Scheduler">Interview Scheduler</option>
-              </select>
-            </label>
-            <button type="submit" className="submit-button">Add User</button>
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={newUser.name}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={newUser.email}
+              onChange={handleInputChange}
+              required
+            />
+            <select
+              name="role"
+              value={newUser.role}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Role</option>
+              <option value="Job Post Editor">Job Post Editor</option>
+              <option value="Candidate Reviewer">Candidate Reviewer</option>
+              <option value="Interview Scheduler">Interview Scheduler</option>
+            </select>
+            <button type="submit" className="submit-button">
+              Add User
+            </button>
           </form>
+        </div>
+      )}
+
+      {deleteConfirmationVisible && (
+        <div className="delete-confirmation">
+          <p>Are you sure you want to delete this user?</p>
+          <button onClick={() => handleDelete(userToDelete)}>Yes</button>
+          <button onClick={cancelDelete}>No</button>
         </div>
       )}
     </div>
