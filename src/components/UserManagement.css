@@ -38,13 +38,13 @@ h2 {
   margin-bottom: 20px;
 }
 
-.search-input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 60%;
+.search-input,
+.role-filter,
+.add-user-button {
+  width: calc(33% - 10px);
 }
 
+.search-input,
 .role-filter {
   padding: 8px;
   border: 1px solid #ccc;
@@ -69,6 +69,8 @@ h2 {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  background-color: #fff;
+  overflow-x: auto; /* Ensure scrollable */
 }
 
 .user-table th,
@@ -87,27 +89,31 @@ h2 {
 }
 
 .edit-button,
-.delete-button,
-.save-button,
-.submit-button {
-  background-color: #007bff;
+.delete-button {
+  padding: 8px 12px;
   border: none;
   color: white;
-  padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 5px;
+}
+
+.edit-button {
+  background-color: #007bff;
+  margin-right: 10px;
 }
 
 .delete-button {
   background-color: #dc3545;
 }
 
-.save-button {
-  background-color: #28a745;
+/* Add gap between the edit and delete buttons */
+.user-actions {
+  display: flex;
+  gap: 15px; /* Adjusted gap for consistency */
 }
 
-.add-user-popup {
+.add-user-popup,
+.delete-confirmation {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -118,8 +124,8 @@ h2 {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   padding: 20px;
   z-index: 1000;
-  width: 90%; /* Adjusted for responsiveness */
-  max-width: 400px; /* Max width for larger screens */
+  width: 90%;
+  max-width: 400px;
 }
 
 .add-user-header {
@@ -151,7 +157,7 @@ h2 {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-bottom: 15px; /* Added margin for spacing */
+  margin-bottom: 15px;
 }
 
 .submit-button {
@@ -161,34 +167,73 @@ h2 {
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%; /* Full width for button */
+  width: 100%;
 }
 
 /* Responsive Design */
-@media (max-width: 600px) {
-  .search-input {
-    width: 100%; /* Full width on mobile */
+@media (max-width: 900px) {
+  .search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .role-filter {
-    width: 100%; /* Full width on mobile */
+  .search-input,
+  .role-filter,
+  .add-user-button {
+    width: 100%;
+    margin-bottom: 10px;
   }
 
-  .add-user-popup {
-    width: 95%; /* Adjusted width for mobile */
-    max-width: none; /* Remove max width on mobile */
+  .user-table th,
+  .user-table td {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .edit-button,
+  .delete-button,
+  .submit-button {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 
-.delete-confirmation {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 1px solid #ccc;
-  padding: 20px;
-  z-index: 1000;
+@media (max-width: 600px) {
+  .user-management-container {
+    padding: 15px;
+  }
+
+  .user-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap; /* Keep table data within bounds */
+  }
+
+  .user-table th,
+  .user-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .add-user-popup,
+  .delete-confirmation {
+    width: 90%;
+    max-width: none; /* Ensure full width */
+    padding: 15px; /* Consistent padding */
+  }
+
+  .add-user-form input,
+  .add-user-form select {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .edit-button,
+  .delete-button,
+  .submit-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }
 
 .delete-confirmation button {
