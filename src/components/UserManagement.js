@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import API from '../services/api';  // Import API service
 import { FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 import './UserManagement.css';
+import axios from 'axios';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -23,6 +24,7 @@ const UserManagement = () => {
     try {
       const response = await API.get('/users');
       setUsers(response.data);
+      // console.log(response.data)
       setError('');
     } catch (error) {
       setError('Failed to fetch users');
@@ -101,17 +103,20 @@ const UserManagement = () => {
     }
     setLoading(true);
     try {
-      await API.post('/users', {
+      await axios.post('http://localhost:5000/api/users/', {
         name: newUser.name,
         email: newUser.email,
         roles: [{ role: newUser.role, accessLevel: 'View-only' }],
       });
-      setSuccessMessage('User details successfully saved!');
+
+       
+      setSuccessMessage('Email sent to the user');
       setTimeout(() => setSuccessMessage(''), 5000); // Clear message after 5 seconds
       fetchUsers();
       setNewUser({ name: '', email: '', role: '' });
       setShowAddUserForm(false);
-    } catch (error) {
+    } 
+    catch (error) {
       setError('Failed to add user');
     } finally {
       setLoading(false);
