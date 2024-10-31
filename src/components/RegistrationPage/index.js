@@ -1,41 +1,119 @@
-import React, { useState, useEffect } from 'react';
-// import { useParams, useHistory } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+
+const RegistrationFormContainer = styled.div`
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #f9f9f9; /* Light background */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #333;
+  font-family: Arial, sans-serif;
+`;
+
+const Title = styled.h1`
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #333; /* Dark text */
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 0.9rem;
+`;
+
+const SuccessMessage = styled.p`
+  color: green;
+  font-size: 0.9rem;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const Label = styled.label`
+  font-size: 1rem;
+  color: #333;
+`;
+
+const Input = styled.input`
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff; /* Blue highlight on focus */
+  }
+
+  &:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+  }
+`;
+
+const Select = styled.select`
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+`;
+
+const SubmitButton = styled.button`
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff; /* Blue submit button */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
 
 const RegistrationForm = () => {
-//   const { userId } = useParams();  // Extract userId from the URL
-//   const history = useHistory();
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
+    jobRole: '',
   });
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-//   useEffect(() => {
-//     // Fetch user data based on userId (optional)
-//     const fetchUser = async () => {
-//       try {
-//         // const response = await axios.get(`/api/users/${userId}`);
-//         setFormData({ ...formData, name: response.data.name, email: response.data.email });
-//       } catch (error) {
-//         setError('Error fetching user data.');
-//       }
-//     };
-
-//     fetchUser();
-//   },);
-
-  // Handle form input changes
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { password, confirmPassword } = formData;
@@ -46,64 +124,77 @@ const RegistrationForm = () => {
     }
 
     try {
-      // Send registration data to the backend
-    //   await axios.post(`/api/users/register/${userId}`, { password });
+      // Registration logic
       setSuccess(true);
-    //   setTimeout(() => {
-    //     // history.push('/login'); // Redirect to login page after success
-    //   }, 2000);
     } catch (error) {
       setError('Error completing registration.');
     }
   };
 
   return (
-    <div className="registration-form">
-      <h1>Complete Your Registration</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>Registration successful! Redirecting to login...</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name</label>
-          <input
+    <RegistrationFormContainer>
+      <Title>Register an Account</Title>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {success && <SuccessMessage>Registration successful!</SuccessMessage>}
+      <Form onSubmit={handleSubmit}>
+        <InputContainer>
+          <Label>Name</Label>
+          <Input
             type="text"
             name="name"
             value={formData.name}
-            disabled
+            onChange={handleInputChange}
+            required
           />
-        </div>
-        <div>
-          <label>Email</label>
-          <input
+        </InputContainer>
+        <InputContainer>
+          <Label>Email</Label>
+          <Input
             type="email"
             name="email"
             value={formData.email}
-            disabled
+            onChange={handleInputChange}
+            required
           />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
+        </InputContainer>
+        <InputContainer>
+          <Label>Password</Label>
+          <Input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
             required
           />
-        </div>
-        <div>
-          <label>Confirm Password</label>
-          <input
+        </InputContainer>
+        <InputContainer>
+          <Label>Confirm Password</Label>
+          <Input
             type="password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleInputChange}
             required
           />
-        </div>
-        <button type="submit">Complete Registration</button>
-      </form>
-    </div>
+        </InputContainer>
+        <InputContainer>
+          <Label>Job Role</Label>
+          <Select
+            name="jobRole"
+            value={formData.jobRole}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="" disabled>Select your role</option>
+            <option value="Interview Scheduler">Interview Scheduler</option>
+            <option value="job-post-editor">Job Post Editor</option>
+            <option value="candidate-reviewer">Candidate Reviewer</option>
+            
+          </Select>
+        </InputContainer>
+        <SubmitButton type="submit">Register</SubmitButton>
+      </Form>
+    </RegistrationFormContainer>
   );
 };
 
