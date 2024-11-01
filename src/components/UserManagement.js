@@ -103,12 +103,11 @@ const UserManagement = () => {
     }
     setLoading(true);
     try {
-      await axios.post('https://my-repo-eight-omega.vercel.app/api/users/', {
+      await axios.post('https://rms-bakcend-1.onrender.com/api/users/', {
         name: newUser.name,
         email: newUser.email,
         roles: [{ role: newUser.role, accessLevel: 'View-only' }],
       });
-
        
       setSuccessMessage('Email sent to the user');
       setTimeout(() => setSuccessMessage(''), 5000); // Clear message after 5 seconds
@@ -118,6 +117,7 @@ const UserManagement = () => {
     } 
     catch (error) {
       setError('Failed to add user');
+      console.log(error);
     } finally {
       setLoading(false);
     }
