@@ -103,7 +103,7 @@ const UserManagement = () => {
     }
     setLoading(true);
     try {
-      await API.post('/users/', {
+      await axios.post('https://my-repo-eight-omega.vercel.app/api/users/', {
         name: newUser.name,
         email: newUser.email,
         roles: [{ role: newUser.role, accessLevel: 'View-only' }],

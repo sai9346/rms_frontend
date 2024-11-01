@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://rms-bakcend-f6wm.onrender.com/api',
+  baseURL: 'https://rms-bakcend-1.onrender.com/api/',
   headers: {
     'Content-Type': 'application/json',
   },
