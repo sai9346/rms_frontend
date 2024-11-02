@@ -127,7 +127,7 @@ const RegistrationForm = () => {
     }
   
     try {
-      const response = await fetch(`https://rms-front-mauve.vercel.app/api/users/register/confirm/${userId}`, {
+      const response = await fetch(`https://rms-bakcend-1.onrender.com/api/users/register/confirm/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
