@@ -107,7 +107,7 @@ const UserManagement = () => {
     }
     setLoading(true);
     try {
-      await axios.post('/users', {
+      await API.post('/users', {
         name: newUser.name,
         email: newUser.email,
         roles: [{ role: newUser.role, accessLevel: 'View-only' }],
