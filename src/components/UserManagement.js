@@ -107,7 +107,7 @@ const UserManagement = () => {
     }
     setLoading(true);
     try {
-      await axios.post('https://rms-bakcend-1.onrender.com/api/users/', {
+      await axios.post('/users', {
         name: newUser.name,
         email: newUser.email,
         roles: [{ role: newUser.role, accessLevel: 'View-only' }],
@@ -167,7 +167,6 @@ const UserManagement = () => {
         <div className="loading-message">Loading...</div>
       ) : (
         <>
-        <h3>Registered Users</h3>
           <table className="user-table">
             <thead>
               <tr>
