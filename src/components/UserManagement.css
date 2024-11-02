@@ -239,3 +239,10 @@ h2 {
 .delete-confirmation button {
   margin: 5px;
 }
+
+.registered-status {
+  color: green;
+}
+.not-registered-status {
+  color: red;
+}

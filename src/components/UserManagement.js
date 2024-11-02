@@ -24,7 +24,7 @@ const UserManagement = () => {
     try {
       const response = await API.get('/users');
       setUsers(response.data);
-      // console.log(response.data)
+      console.log(response.data)
       setError('');
     } catch (error) {
       setError('Failed to fetch users');
@@ -41,6 +41,10 @@ const UserManagement = () => {
     const matchesRole = roleFilter ? user.roles.some((role) => role.role === roleFilter) : true;
     return matchesSearch && matchesRole;
   });
+
+   // Separate the users based on their registration status
+   const registeredUsers = filteredUsers.filter(user => user.registrationStatus === 'Registered');
+   const notRegisteredUsers = filteredUsers.filter(user => user.registrationStatus === 'Not Registered');
 
   const handleDelete = async (userId) => {
     try {
@@ -162,89 +166,130 @@ const UserManagement = () => {
       {loading ? (
         <div className="loading-message">Loading...</div>
       ) : (
-        <table className="user-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Roles</th>
-              <th>Permissions</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <tr key={user._id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    {editingUser === user._id ? (
-                      <select
-                        className="role-dropdown"
-                        value={selectedRole}
-                        onChange={(e) => handleRoleChange(e.target.value)}
-                      >
-                        <option value="Job Post Editor">Job Post Editor</option>
-                        <option value="Candidate Reviewer">Candidate Reviewer</option>
-                        <option value="Interview Scheduler">Interview Scheduler</option>
-                      </select>
-                    ) : (
-                      user.roles.map((role) => role.role).join(', ')
-                    )}
-                  </td>
-                  <td>
-                    {editingUser === user._id ? (
-                      <select
-                        className="permission-dropdown"
-                        value={selectedPermission}
-                        onChange={(e) => handlePermissionChange(e.target.value)}
-                      >
-                        <option value="Full-control">Full-Control</option>
-                        <option value="View-only">View-only</option>
-                        <option value="Editor">Editor</option>
-                      </select>
-                    ) : (
-                      user.roles.map((role) => role.accessLevel).join(', ')
-                    )}
-                  </td>
-                  <td>
-                    {editingUser === user._id ? (
-                      <button
-                        className="save-button"
-                        onClick={() => handleSaveChanges(user._id)}
-                      >
-                        Save
-                      </button>
-                    ) : (
-                      <div>
-                        <button
-                          className="edit-button"
-                          onClick={() => handleEditClick(user)}
+        <>
+        <h3>Registered Users</h3>
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Permissions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {registeredUsers.length > 0 ? (
+                registeredUsers.map((user) => (
+                  <tr key={user._id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      {editingUser === user._id ? (
+                        <select
+                          className="role-dropdown"
+                          value={selectedRole}
+                          onChange={(e) => handleRoleChange(e.target.value)}
                         >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="delete-button"
-                          onClick={() => confirmDeleteUser(user._id)} // Updated to use confirm function
+                          <option value="Job Post Editor">Job Post Editor</option>
+                          <option value="Candidate Reviewer">Candidate Reviewer</option>
+                          <option value="Interview Scheduler">Interview Scheduler</option>
+                        </select>
+                      ) : (
+                        user.roles.map((role) => role.role).join(', ')
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user._id ? (
+                        <select
+                          className="permission-dropdown"
+                          value={selectedPermission}
+                          onChange={(e) => handlePermissionChange(e.target.value)}
                         >
-                          <FaTrash />
+                          <option value="Full-control">Full-Control</option>
+                          <option value="View-only">View-only</option>
+                          <option value="Editor">Editor</option>
+                        </select>
+                      ) : (
+                        user.roles.map((role) => role.accessLevel).join(', ')
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user._id ? (
+                        <button
+                          className="save-button"
+                          onClick={() => handleSaveChanges(user._id)}
+                        >
+                          Save
                         </button>
-                      </div>
-                    )}
+                      ) : (
+                        <div>
+                          <button
+                            className="edit-button"
+                            onClick={() => handleEditClick(user)}
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="delete-button"
+                            onClick={() => confirmDeleteUser(user._id)} // Updated to use confirm function
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="no-users-message">
+                    No registered users found
                   </td>
                 </tr>
-              ))
-            ) : (
+              )}
+            </tbody>
+          </table>
+
+          <h3>Not Registered Users</h3>
+          <table className="user-table">
+            <thead>
               <tr>
-                <td colSpan="5" className="no-users-message">
-                  No users found
-                </td>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {notRegisteredUsers.length > 0 ? (
+                notRegisteredUsers.map((user) => (
+                  <tr key={user._id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{user.roles.map((role) => role.role).join(', ')}</td>
+                    <td>
+                      <button
+                        className="delete-button"
+                        onClick={() => confirmDeleteUser(user._id)} // Updated to use confirm function
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="no-users-message">
+                    No not-registered users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </>
       )}
+   
 
       {showAddUserForm && (
         <div className="add-user-popup">
@@ -302,5 +347,4 @@ const UserManagement = () => {
 
 // user management deployment
 
-// user management deployment
 export default UserManagement;

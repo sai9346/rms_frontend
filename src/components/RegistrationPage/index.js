@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';  // Import useParams
 import styled from 'styled-components';
 
 const RegistrationFormContainer = styled.div`
@@ -99,6 +100,8 @@ const SubmitButton = styled.button`
 `;
 
 const RegistrationForm = () => {
+  const { userId } = useParams();  // Get userId from URL params
+  console.log(userId);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -116,24 +119,52 @@ const RegistrationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { password, confirmPassword } = formData;
-
+    const { password, confirmPassword, name, email, jobRole } = formData;
+  
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
+  
     try {
-      // Registration logic
-      setSuccess(true);
+      const response = await fetch(`http://localhost:5000/api/users/register/confirm/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          jobRole,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        setSuccess(true);
+        setError('');
+        // Optionally, reset form data after success
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          jobRole: '',
+        });
+      } else {
+        setError(result.message || 'Error completing registration.');
+      }
     } catch (error) {
       setError('Error completing registration.');
     }
   };
+  
 
   return (
     <RegistrationFormContainer>
-      <Title>Register an Account</Title>
+      <Title>Complete Your Registration.</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {success && <SuccessMessage>Registration successful!</SuccessMessage>}
       <Form onSubmit={handleSubmit}>
